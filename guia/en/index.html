@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>cf-dns — Cloudflare DNS from the command line</title>
+<meta content="A pure Python CLI to create, list, and delete DNS records in Cloudflare — includes the CNAME+TXT pair required by Vercel." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
+    --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --amb2:#f0c070; --sky:#38bdf8; --pro:#cbd5e1;
+    color-scheme:dark;
+  }
+  body.light{
+    --bg:#f6f7f9; --bg2:#eceef2; --card:#ffffff; --line:#e1e3ea;
+    --txt:#1a1a22; --mut:#5b5b68; --amb:#b9791d; --amb2:#a16207; --sky:#0369a1; --pro:#b45309;
+    color-scheme:light;
+  }
+  body.light .hero .glow{opacity:.5}
+  body.light pre{background:#0e0e14;color:#d6d6e0}
+  body.light pre .c{color:#8a8a98}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb);text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .mut{color:var(--mut)} .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(12px);background:rgba(12,12,16,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  nav .brand{display:flex;align-items:center;gap:8px;font-family:Sora;font-weight:800;letter-spacing:-.02em;color:var(--amb)}
+  nav .brand .emoji{font-size:1.25rem}
+  nav .sep{color:var(--mut);opacity:.45}
+  nav .inema{color:var(--sky);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .inema:hover{filter:brightness(1.15)}
+  nav .pro{color:var(--pro);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .pro:hover{filter:brightness(1.15)}
+  nav .clubpro{display:inline-flex;align-items:center;gap:6px}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:.92rem}
+  nav .links a.sec{color:var(--mut)} nav .links a.sec:hover{color:var(--txt)}
+  .tgl{background:var(--bg2);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  .tgl:hover{border-color:var(--amb)}
+  .btn{display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.6em 1.05em;border-radius:10px;font-family:Sora}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  @media(max-width:760px){nav .links a.sec{display:none}}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;height:600px;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent 70%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:74px 22px}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
+  .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:34ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero figure{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000}
+  .hero figure img{width:100%;display:block}
+  @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
+  section .sub{color:var(--mut);margin:.6em 0 2em;max-width:62ch}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:1.05rem;margin-bottom:.4em}
+  .card p{color:var(--mut);font-size:.92rem;margin:0}
+  .num{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(226,162,59,.14);color:var(--amb);font-family:Sora;font-weight:800;font-size:.9rem;margin-bottom:.7em}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow span{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:.45em .9em;font-size:.85rem;font-family:Sora;font-weight:600}
+  .flow .arr{color:var(--amb);border:none;background:none;padding:0 .1em}
+  pre{background:#0a0a0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:.86rem;line-height:1.6;color:#d6d6e0}
+  pre .c{color:#6f6f7c} pre .k{color:var(--amb2)} pre .s{color:#9ece6a}
+  .step{display:grid;grid-template-columns:46px 1fr;gap:16px;margin-bottom:26px}
+  .step .b{width:46px;height:46px;border-radius:12px;background:var(--amb);color:#1a1206;font-family:Sora;font-weight:800;font-size:1.25rem;display:flex;align-items:center;justify-content:center}
+  .step h3{font-size:1.12rem;margin-bottom:.3em}
+  .step p{color:var(--mut);margin:.2em 0 .7em}
+  .ex{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.ex{grid-template-columns:1fr}}
+  .ex figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .ex figure img{width:100%;display:block}
+  .ex figcaption{padding:12px 14px;font-size:.88rem;color:var(--mut);background:var(--card)}
+  .phase{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border:none}
+  .phase .tag{flex:0 0 92px;font-family:Sora;font-weight:800;color:var(--amb)}
+  .phase .d strong{display:block;margin-bottom:.2em}
+  .phase .d span{color:var(--mut);font-size:.92rem}
+  footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
+</style>
+<link href="https://inematds.github.io/cf-dns/guia/" hreflang="pt-BR" rel="alternate"/><link href="https://inematds.github.io/cf-dns/guia/en/" hreflang="en" rel="alternate"/><link href="https://inematds.github.io/cf-dns/guia/es/" hreflang="es" rel="alternate"/></head>
+<body><div class="inema-lang" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;gap:2px;padding:4px;border-radius:10px;background:rgba(12,12,16,.82);border:1px solid rgba(226,162,59,.45);font:600 12px/1 Sora,Inter,system-ui,sans-serif;backdrop-filter:blur(8px)" translate="no"><a href="../" hreflang="pt-BR" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#e9e9ee">PT</a><a href="./" hreflang="en" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#1a1206;background:#E2A23B">EN</a><a href="../es/" hreflang="es" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#e9e9ee">ES</a></div>
+<nav><div class="wrap">
+<a class="brand" href="#top"><span class="emoji">🌐</span> cf-dns</a>
+<span class="sep">|</span>
+<span class="clubpro">
+<a class="inema" href="https://inema.club" rel="noopener" target="_blank">INEMA.CLUB</a>
+<span class="sep">-</span>
+<a class="pro" href="https://inema.pro" rel="noopener" target="_blank">PRO</a>
+</span>
+<div class="links">
+<a class="sec" href="#oque">What it is</a>
+<a class="sec" href="#fluxo">How it works</a>
+<a class="sec" href="#pre">Prerequisites</a>
+<a class="sec" href="#guia">User guide</a>
+<a class="sec" href="#exemplos">Examples</a>
+<a class="sec" href="#roadmap">Roadmap</a>
+<button aria-label="Toggle theme" class="tgl" id="themeToggle" title="Toggle theme">🌙</button>
+<a class="btn" href="https://github.com/inematds/cf-dns" rel="noopener" target="_blank">GitHub</a>
+</div>
+</div></nav>
+<header class="hero" id="top">
+<div class="glow"></div>
+<div class="wrap">
+<div>
+<span class="chip">CLI · Cloudflare DNS</span>
+<h1>DNS record in <span class="amb">one command</span> — without opening the dashboard.</h1>
+<p class="lead">A single-file Python script that creates, lists, and deletes records in Cloudflare through the API. Includes the CNAME + TXT pair that Vercel requires to verify a new subdomain.</p>
+<div class="cta">
+<a class="btn" href="#guia">Start the guide</a>
+<a class="btn ghost" href="https://github.com/inematds/cf-dns" rel="noopener" target="_blank">View on GitHub</a>
+</div>
+</div>
+<figure><img alt="cf-dns — Cloudflare DNS from the command line" src="../assets/hero.png"/></figure>
+</div>
+</header>
+<section id="oque"><div class="wrap">
+<span class="chip">What it is</span>
+<h2>One file, zero dependencies</h2>
+<p class="sub">The Cloudflare dashboard is great for looking things up and terrible for repeating them. This script does the same thing through the API, in a way you can version, review, and run again tomorrow.</p>
+<div class="grid g3">
+<div class="card"><h3>📦 Python 3 standard library only</h3><p>No <code>pip install</code>. Copy the <code>cf-dns.py</code> for any machine with Python 3, and it runs — a new server, container, freshly created VPS.</p></div>
+<div class="card"><h3>🔑 Token kept out of the code</h3><p>The credential comes from the variable <code>CLOUDFLARE_API_TOKEN</code> or a <code>.env</code> pointed to by <code>CF_ENV_FILE</code>. No secrets live in the repository.</p></div>
+<div class="card"><h3>▲ Vercel shortcut</h3><p>The subcommand <code>vercel</code> creates the CNAME and verification TXT records at once, with the proxy already turned off — that’s the detail that usually blocks verification.</p></div>
+</div>
+</div></section>
+<section id="fluxo"><div class="wrap">
+<span class="chip">How it works</span>
+<h2>Three API calls, in the right order</h2>
+<p class="sub">There’s no magic: the script talks to the Cloudflare API v4. What it adds is a safe sequence—look before you write.</p>
+<div class="flow">
+<span>Read the token</span><span class="arr">→</span>
+<span>Find the zone_id</span><span class="arr">→</span>
+<span>List what already exists</span><span class="arr">→</span>
+<span>Create / delete</span><span class="arr">→</span>
+<span>Check</span>
+</div>
+<div class="grid g3" style="margin-top:26px">
+<div class="card"><h3>Find the zone</h3><p><code>GET /zones?name=&lt;dominio&gt;</code> returns the <code>zone_id</code>. Every record hangs off this ID — it's always the first step.</p></div>
+<div class="card"><h3>Look before you write</h3><p><code>GET /zones/&lt;id&gt;/dns_records?name=…</code> shows what’s already there. This prevents you from discovering a conflict only after breaking the site.</p></div>
+<div class="card"><h3>Write</h3><p><code>POST</code> creates and <code>DELETE /dns_records/&lt;record_id&gt;</code> removes. The <code>list</code> prints the id of each record, which is what the <code>delete</code> consumes.</p></div>
+</div>
+</div></section>
+<section id="pre"><div class="wrap">
+<span class="chip">Prerequisites</span>
+<h2>A token and Python—that’s all</h2>
+<p class="sub">There’s no service to start, daemon, or database. The script is stateless: each run is a brief conversation with the API.</p>
+<div class="grid g3">
+<div class="card"><h3>Python 3</h3><p>Any 3.x version your distro provides. No external packages are imported.</p><pre><span class="c"># check</span>
+<span class="k">python3</span> --version</pre></div>
+<div class="card"><h3>Cloudflare API Token</h3><p>In the dashboard: <strong>My Profile → API Tokens → Create Token</strong>, template <em>Edit zone DNS</em>. Permission <code>Zone → DNS → Edit</code> in the zones you’re going to modify. The token is shown only once.</p><pre><span class="c"># keep outside of git</span>
+<span class="k">echo</span> <span class="s">'CLOUDFLARE_API_TOKEN=SEU_TOKEN'</span> &gt;&gt; ~/.env
+<span class="k">chmod</span> 600 ~/.env</pre></div>
+<div class="card"><h3>The domain in Cloudflare</h3><p>The zone must already be in the account, and the token must be able to see it. If it can't, the script tells you instead of failing silently.</p><pre><span class="c"># smoke test</span>
+<span class="k">./cf-dns.py</span> list inema.club</pre></div>
+</div>
+</div></section>
+<section id="guia"><div class="wrap">
+<span class="chip">User guide · step by step</span>
+<h2>From clone to live record</h2>
+<p class="sub">Five steps. The fourth is the one you'll repeat every time.</p>
+<div class="step"><div class="b">1</div><div>
+<h3>Install on a new machine</h3>
+<p>The entire repository is the script plus the documentation. Copy the file wherever your <code>$PATH</code> reaches.</p>
+<pre><span class="k">git</span> clone <span class="s">https://github.com/inematds/cf-dns</span>
+<span class="k">install</span> -m 755 cf-dns/cf-dns.py ~/bin/cf-dns.py</pre>
+</div></div>
+<div class="step"><div class="b">2</div><div>
+<h3>Point to the token</h3>
+<p>Two ways: an environment variable or a file <code>.env</code> indicated by <code>CF_ENV_FILE</code>. Without either, the script refuses and explains why.</p>
+<pre><span class="c"># environment variable</span>
+<span class="k">export</span> CLOUDFLARE_API_TOKEN=<span class="s">seu_token</span>
+
+<span class="c"># or pointing to a file</span>
+<span class="k">export</span> CF_ENV_FILE=<span class="s">~/.env</span></pre>
+</div></div>
+<div class="step"><div class="b">3</div><div>
+<h3>Look before you make changes</h3>
+<p>Always. The <code>list</code> shows the type, name, value, proxy status, and the <strong>id</strong> for each record — and that’s how you find an A record occupying the host you planned to use.</p>
+<pre><span class="k">./cf-dns.py</span> list inema.club          <span class="c"># the entire zone</span>
+<span class="k">./cf-dns.py</span> list inema.club dlp2     <span class="c"># just one name</span></pre>
+</div></div>
+<div class="step"><div class="b">4</div><div>
+<h3>Create the record</h3>
+<p>The name can be just the subdomain (<code>rede</code>) or the full domain. The default TTL is 60 seconds — good while something is being checked.</p>
+<pre><span class="c"># A record pointing to an IP</span>
+<span class="k">./cf-dns.py</span> add inema.club A rede <span class="s">192.168.2.99</span>
+
+<span class="c"># CNAME with a longer TTL</span>
+<span class="k">./cf-dns.py</span> add inema.club CNAME app <span class="s">destino.exemplo.com</span> --ttl=300
+
+<span class="c"># with the orange proxy enabled (only when it makes sense)</span>
+<span class="k">./cf-dns.py</span> add inema.club A site <span class="s">203.0.113.10</span> --proxied</pre>
+</div></div>
+<div class="step"><div class="b">5</div><div>
+<h3>Delete when needed</h3>
+<p>O <code>delete</code> uses the id that the <code>list</code> printed — not the name. That’s intentional: you need to see the record before removing it.</p>
+<pre><span class="k">./cf-dns.py</span> list   inema.club dlp2
+<span class="k">./cf-dns.py</span> delete inema.club <span class="s">76d14e9482f4b03f9d05a3c643f6cca7</span></pre>
+</div></div>
+</div></section>
+<section id="exemplos"><div class="wrap">
+<span class="chip">Examples</span>
+<h2>The two cases that come up every week</h2>
+<p class="sub">Real commands, taken from actual use on INEMA domains.</p>
+<div class="step"><div class="b">▲</div><div>
+<h3>New subdomain in Vercel</h3>
+<p>Vercel requires two things: a CNAME pointing to <code>vercel-dns</code> and a TXT record in <code>_vercel</code> proving that you own the domain. The subcommand <code>vercel</code> does both, with <strong>proxy turned off</strong> — verification won’t pass with the proxy turned on.</p>
+<pre><span class="k">./cf-dns.py</span> vercel inema.club dlp2 \
+  <span class="s">820ed52053a39f8f.vercel-dns-017.com</span> \
+  <span class="s">vc-domain-verify=dlp2.inema.club,5bc6ac41fe34ada1f4f9</span></pre>
+<p>Multiple TXT records in <code>_vercel</code> coexist without issue — one per subdomain. Once Vercel turns green, you can remove that subdomain’s TXT record.</p>
+</div></div>
+<div class="step"><div class="b">🏠</div><div>
+<h3>Internal name for a LAN IP</h3>
+<p>You can use public DNS pointing to a private IP — it resolves only for those on the network (or VPN). The proxy must be turned off: Cloudflare does not proxy private addresses.</p>
+<pre><span class="k">./cf-dns.py</span> add inema.club A rede <span class="s">192.168.2.99</span>
+<span class="c"># -&gt; rede.inema.club responds to 192.168.2.99 on the LAN</span></pre>
+</div></div>
+</div></section>
+<section id="roadmap"><div class="wrap">
+<span class="chip">Roadmap</span>
+<h2>Where it is and what’s missing</h2>
+<p class="sub">The tool is small by design: one file that fits in your head and that you read all the way through before trusting it.</p>
+<div class="phase"><div class="tag">Done</div><div class="d"><strong>list · add · delete · vercel</strong><span>The four subcommands cover everyday use. API errors come in JSON and are printed as-is, without translation that could hide the cause.</span></div></div>
+<div class="phase"><div class="tag">Done</div><div class="d"><strong>Never put the token in the repository</strong><span>Comes from the environment or a <code>.env</code>. The script never prints the value anywhere, not even in an error message.</span></div></div>
+<div class="phase"><div class="tag">By convention</div><div class="d"><strong>Look before you write</strong><span>Run <code>list</code> before making any changes, and note the old value before deleting it. An A record and a CNAME can’t coexist on the same host—switching one for the other takes down what was there.</span></div></div>
+<div class="phase"><div class="tag">Next</div><div class="d"><strong>Mode <code>--dry-run</code></strong><span>Print the command that would run without executing it, so you can review a batch change before applying it.</span></div></div>
+</div></section>
+<footer>
+<div class="wrap">
+<div class="pill">Python 3 (stdlib)</div><div class="pill">Cloudflare API v4</div><div class="pill">Zero dependencies</div><div class="pill">CLI</div>
+<p style="margin-top:18px">cf-dns · Cloudflare DNS from the command line ·
+      <a href="https://github.com/inematds/cf-dns">inematds/cf-dns</a> ·
+      <a href="https://inema.club">INEMA.CLUB</a></p>
+</div>
+</footer>
+<script>
+  (function(){
+    var KEY='cf-dns-theme';
+    var b=document.body, t=document.getElementById('themeToggle');
+    if(localStorage.getItem(KEY)==='light'){ b.classList.add('light'); t.textContent='☀️'; }
+    t.addEventListener('click',function(){
+      var light=b.classList.toggle('light');
+      t.textContent=light?'☀️':'🌙';
+      localStorage.setItem(KEY, light?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
