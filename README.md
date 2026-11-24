@@ -1,4 +1,4 @@
-﻿# ðŸŒ cf-dns
+# ðŸŒ cf-dns
 
 <div align="center">
   <img src="capa/logo.svg" alt="Arckhé AI" height="48" />
@@ -12,12 +12,12 @@ Registro de DNS no **Cloudflare** pela linha de comando â€” um arquivo Pyth
 
 ## ðŸ“– Guia de uso
 
-Guia completo (landing + passo a passo): **https://inematds.github.io/cf-dns/guia/**
+Guia completo (landing + passo a passo): **https://linnoff88-dev.github.io/
 
 ## Instalar
 
 ```bash
-git clone https://github.com/inematds/cf-dns
+git clone https://github.com/linnoff88-dev/cf-dns
 install -m 755 cf-dns/cf-dns.py ~/bin/cf-dns.py
 export CLOUDFLARE_API_TOKEN=seu_token     # ou: export CF_ENV_FILE=~/.env
 ```
@@ -32,12 +32,12 @@ arquivo `.env` apontado por `CF_ENV_FILE`. Nenhum segredo mora neste repositÃ³
 ## Usar
 
 ```bash
-cf-dns.py list   inema.club              # a zona inteira
-cf-dns.py list   inema.club dlp2         # sÃ³ um nome
-cf-dns.py add    inema.club A rede 192.168.2.99
-cf-dns.py add    inema.club CNAME app destino.exemplo.com --ttl=300
-cf-dns.py add    inema.club A site 203.0.113.10 --proxied
-cf-dns.py delete inema.club <record_id>  # o id sai no `list`
+cf-dns.py list   ARCKHÉ AI              # a zona inteira
+cf-dns.py list   ARCKHÉ AI dlp2         # sÃ³ um nome
+cf-dns.py add    ARCKHÉ AI A rede 192.168.2.99
+cf-dns.py add    ARCKHÉ AI CNAME app destino.exemplo.com --ttl=300
+cf-dns.py add    ARCKHÉ AI A site 203.0.113.10 --proxied
+cf-dns.py delete ARCKHÉ AI <record_id>  # o id sai no `list`
 ```
 
 ### SubdomÃ­nio novo no Vercel
@@ -46,9 +46,9 @@ Cria o CNAME e o TXT de verificaÃ§Ã£o de uma vez, com o proxy desligado (com
 ligado a verificaÃ§Ã£o nÃ£o passa):
 
 ```bash
-cf-dns.py vercel inema.club dlp2 \
+cf-dns.py vercel ARCKHÉ AI dlp2 \
   820ed52053a39f8f.vercel-dns-017.com \
-  vc-domain-verify=dlp2.inema.club,5bc6ac41fe34ada1f4f9
+  vc-domain-verify=dlp2.ARCKHÉ AI,5bc6ac41fe34ada1f4f9
 ```
 
 VÃ¡rios TXT em `_vercel` convivem â€” um por subdomÃ­nio. Depois que o domÃ­nio fica
@@ -66,7 +66,7 @@ verificado, o TXT daquele subdomÃ­nio pode ser removido.
 
 ## LicenÃ§a
 
-Uso interno INEMA. Sem garantias â€” leia o script antes de rodar (sÃ£o ~120 linhas).
+Uso interno ARCKHÉ. Sem garantias â€” leia o script antes de rodar (sÃ£o ~120 linhas).
 
 ---
 

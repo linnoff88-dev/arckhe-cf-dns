@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-cf-dns — cadastro de DNS no Cloudflare pela API (o que eu faço à mão, em script).
+cf-dns â€” cadastro de DNS no Cloudflare pela API (o que eu faÃ§o Ã  mÃ£o, em script).
 
-Credencial: variável CLOUDFLARE_API_TOKEN, ou a linha CLOUDFLARE_API_TOKEN= de um
-.env (padrão: ~/projetos/wifi/.env, ou o caminho em CF_ENV_FILE).
+Credencial: variÃ¡vel CLOUDFLARE_API_TOKEN, ou a linha CLOUDFLARE_API_TOKEN= de um
+.env (padrÃ£o: ~/projetos/wifi/.env, ou o caminho em CF_ENV_FILE).
 
 Uso:
   cf-dns.py list   <zona> [nome]
@@ -12,12 +12,12 @@ Uso:
   cf-dns.py vercel <zona> <sub> <cname-alvo> <valor-do-txt>
 
 Exemplos:
-  cf-dns.py list   inema.club dlp2
-  cf-dns.py add    inema.club A rede 192.168.2.99
-  cf-dns.py vercel inema.club dlp2 820ed52053a39f8f.vercel-dns-017.com \\
-                   vc-domain-verify=dlp2.inema.club,5bc6ac41fe34ada1f4f9
+  cf-dns.py list   ARCKHÉ AI dlp2
+  cf-dns.py add    ARCKHÉ AI A rede 192.168.2.99
+  cf-dns.py vercel ARCKHÉ AI dlp2 820ed52053a39f8f.vercel-dns-017.com \\
+                   vc-domain-verify=dlp2.ARCKHÉ AI,5bc6ac41fe34ada1f4f9
 
-Só a biblioteca padrão do Python 3 — nada pra instalar.
+SÃ³ a biblioteca padrÃ£o do Python 3 â€” nada pra instalar.
 """
 import json, os, sys, urllib.request, urllib.error
 
@@ -55,7 +55,7 @@ def api(path, data=None, method="GET"):
 def zone_id(name):
     r = api("/zones?name=" + name)
     if not r.get("result"):
-        sys.exit(f"Zona {name} não encontrada (token sem acesso a ela?)")
+        sys.exit(f"Zona {name} nÃ£o encontrada (token sem acesso a ela?)")
     return r["result"][0]["id"]
 
 
@@ -90,10 +90,10 @@ def cmd_delete(zona, rid):
 
 
 def cmd_vercel(zona, sub, alvo, txt):
-    """CNAME do subdomínio + TXT de verificação, do jeito que o Vercel pede."""
+    """CNAME do subdomÃ­nio + TXT de verificaÃ§Ã£o, do jeito que o Vercel pede."""
     print("CNAME:")
     cmd_add(zona, "CNAME", sub, alvo, 60, False)     # proxy DESLIGADO, sempre
-    print("TXT de verificação:")
+    print("TXT de verificaÃ§Ã£o:")
     cmd_add(zona, "TXT", "_vercel", txt, 60, False)  # convive com os outros TXT
 
 
