@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-cf-dns â€” cadastro de DNS no Cloudflare pela API (o que eu faÃ§o Ã  mÃ£o, em script).
+cf-dns ê¢â¬â cadastro de DNS no Cloudflare pela API (o que eu faêÂ§o êÂ  mêÂ£o, em script).
 
-Credencial: variÃ¡vel CLOUDFLARE_API_TOKEN, ou a linha CLOUDFLARE_API_TOKEN= de um
-.env (padrÃ£o: ~/projetos/wifi/.env, ou o caminho em CF_ENV_FILE).
+Credencial: variêÂ¡vel CLOUDFLARE_API_TOKEN, ou a linha CLOUDFLARE_API_TOKEN= de um
+.env (padrêÂ£o: ~/projetos/wifi/.env, ou o caminho em CF_ENV_FILE).
 
 Uso:
   cf-dns.py list   <zona> [nome]
@@ -12,12 +12,12 @@ Uso:
   cf-dns.py vercel <zona> <sub> <cname-alvo> <valor-do-txt>
 
 Exemplos:
-  cf-dns.py list   ARCKHÉ AI dlp2
-  cf-dns.py add    ARCKHÉ AI A rede 192.168.2.99
-  cf-dns.py vercel ARCKHÉ AI dlp2 820ed52053a39f8f.vercel-dns-017.com \\
-                   vc-domain-verify=dlp2.ARCKHÉ AI,5bc6ac41fe34ada1f4f9
+  cf-dns.py list   ARCKHê AI dlp2
+  cf-dns.py add    ARCKHê AI A rede 192.168.2.99
+  cf-dns.py vercel ARCKHê AI dlp2 820ed52053a39f8f.vercel-dns-017.com \\
+                   vc-domain-verify=dlp2.ARCKHê AI,5bc6ac41fe34ada1f4f9
 
-SÃ³ a biblioteca padrÃ£o do Python 3 â€” nada pra instalar.
+SêÂ³ a biblioteca padrêÂ£o do Python 3 ê¢â¬â nada pra instalar.
 """
 import json, os, sys, urllib.request, urllib.error
 
@@ -55,7 +55,7 @@ def api(path, data=None, method="GET"):
 def zone_id(name):
     r = api("/zones?name=" + name)
     if not r.get("result"):
-        sys.exit(f"Zona {name} nÃ£o encontrada (token sem acesso a ela?)")
+        sys.exit(f"Zona {name} nêÂ£o encontrada (token sem acesso a ela?)")
     return r["result"][0]["id"]
 
 
@@ -90,10 +90,10 @@ def cmd_delete(zona, rid):
 
 
 def cmd_vercel(zona, sub, alvo, txt):
-    """CNAME do subdomÃ­nio + TXT de verificaÃ§Ã£o, do jeito que o Vercel pede."""
+    """CNAME do subdomêÂ­nio + TXT de verificaêÂ§êÂ£o, do jeito que o Vercel pede."""
     print("CNAME:")
     cmd_add(zona, "CNAME", sub, alvo, 60, False)     # proxy DESLIGADO, sempre
-    print("TXT de verificaÃ§Ã£o:")
+    print("TXT de verificaêÂ§êÂ£o:")
     cmd_add(zona, "TXT", "_vercel", txt, 60, False)  # convive com os outros TXT
 
 
